@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp">
+        <TextView
+            android:id="@+id/tx_bluetooth_search"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:text="scan"
+            android:gravity="center">
+        </TextView>
+
+        <ImageView
+            android:id="@+id/img_bluetooth_sesarch"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:gravity="center"
+            android:padding="5dp"
+            android:scaleType="centerInside"
+            android:src="@mipmap/iconfont_jiazai"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+
+
+        <LinearLayout
+            android:id="@+id/scan_list_linear"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:orientation="vertical">
+
+            <ListView
+                android:id="@android:id/list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:overScrollMode="never"
+                android:scrollbars="none"/>
+        </LinearLayout>
+</LinearLayout>

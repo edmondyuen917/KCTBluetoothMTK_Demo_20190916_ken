@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/title"
+        style="@android:style/TextAppearance.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="自定义表盘"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/clear_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:onClick="onClick"
+        android:text="CLEAR"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/scroll_view"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="8dp"
+        android:background="#EEEEEF"
+        app:layout_constraintBottom_toTopOf="@+id/get_status"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title">
+
+        <TextView
+            android:id="@+id/message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="text" />
+    </ScrollView>
+
+    <Button
+        android:id="@+id/get_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
+        android:text="@string/current_status"
+        app:layout_constraintBottom_toTopOf="@+id/switch_dial"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/get_dial_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:onClick="onClick"
+        android:text="@string/current_clock_dial_list"
+        app:layout_constraintBottom_toBottomOf="@id/get_status"
+        app:layout_constraintStart_toEndOf="@id/get_status"
+        app:layout_constraintTop_toTopOf="@id/get_status" />
+
+    <Button
+        android:id="@+id/get_compat_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:onClick="onClick"
+        android:text="@string/compat_info"
+        app:layout_constraintBottom_toBottomOf="@id/get_dial_list"
+        app:layout_constraintStart_toEndOf="@id/get_dial_list"
+        app:layout_constraintTop_toTopOf="@id/get_dial_list" />
+
+    <Button
+        android:id="@+id/switch_dial"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:enabled="false"
+        android:onClick="onClick"
+        android:text="@string/switch_dial"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/del_dial"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:onClick="onClick"
+        android:text="@string/delete_dial"
+        app:layout_constraintBottom_toBottomOf="@id/switch_dial"
+        app:layout_constraintStart_toEndOf="@id/switch_dial"
+        app:layout_constraintTop_toTopOf="@id/switch_dial" />
+
+    <Button
+        android:id="@+id/set_background"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:onClick="onClick"
+        android:text="@string/set_dial_background"
+        app:layout_constraintBottom_toBottomOf="@id/del_dial"
+        app:layout_constraintStart_toEndOf="@id/del_dial"
+        app:layout_constraintTop_toTopOf="@id/del_dial" />
+
+    <Button
+        android:id="@+id/push_dial"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:onClick="onClick"
+        android:text="@string/push_dial"
+        app:layout_constraintBottom_toBottomOf="@id/set_background"
+        app:layout_constraintStart_toEndOf="@id/set_background"
+        app:layout_constraintTop_toTopOf="@id/set_background" />
+
+</android.support.constraint.ConstraintLayout>

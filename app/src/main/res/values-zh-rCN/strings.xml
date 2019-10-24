@@ -1,0 +1,118 @@
+<resources>
+    <string name="app_name">KCT_MTKSDK demo</string>
+    
+    <string name="no_know_device">未知设备</string>
+    <string name="ble_not_supported">该手机不支持蓝牙LE功能</string>
+    <string name="error_bluetooth_not_supported">不支持蓝牙</string>
+    <string name="pls_switch_bt_on">请打开蓝牙</string>
+
+    <string name="connect_none">未连接</string>
+    <string name="connecting">连接中...</string>
+    <string name="connected">已连接</string>
+    <string name="connect_fail">已断开连接</string>
+
+
+    <string name="scan">搜索</string>
+    <string name="disconnect">断开连接</string>
+    <string name="syn_time">同步时间</string>
+    <string name="syn_firmware">同步固件信息</string>
+    <string name="find_device">查找设备</string>
+    <string name="syn_brace">同步设备配置</string>
+    <string name="syn_history_run">同步历史步数</string>
+    <string name="syn_history_sleep">同步历史睡眠</string>
+    <string name="syn_history_heart">同步历史心率</string>
+    <string name="syn_history_blood">同步历史血压</string>
+    <string name="syn_history_oxygen">同步历史血氧</string>
+    <string name="syn_history_sport">同步历史运动</string>
+    <string name="syn_real_run">同步实时步数</string>
+    <string name="syn_real_heart">同步实时心率</string>
+    <string name="syn_userInfo">同步个人信息</string>
+    <string name="syn_camera">相机操作</string>
+    <string name="syn_unit">同步单位设置</string>
+    <string name="syn_notification">通知消息同步</string>
+    <string name="syn_call">电话通知同步</string>
+    <string name="syn_sms">短信通知同步</string>
+    <string name="syn_clock">闹钟同步</string>
+    <string name="syn_longSit">久坐同步</string>
+    <string name="syn_water">喝水同步</string>
+    <string name="syn_noDir">勿扰同步</string>
+    <string name="syn_qixiang">气象同步</string>
+    <string name="Firmware_upgrade">固件升级</string>
+    <string name="syn_motion_status">运动状态同步到设备</string>
+    <string name="target_setting">运动目标设置</string>
+    <string name="device_bind">设备绑定请求</string>
+    <string name="device_unbind">设备解绑请求</string>
+    <string name="HID_connect">HID连接</string>
+    <string name="HID_disconnect">HID断开</string>
+    <string name="syn_inquire_flash_version">查询FLASH数据版本号</string>
+    <string name="syn_set_flash_begin_command">写入FLASH数据开始命令</string>
+    <string name="get_flash_data">获得FLASH数据文件包</string>
+    <string name="send_flash_data">发送Flash数据包</string>
+
+    <string name="device_not_connect">设备未连接</string>
+    <string name="please_disconnect">请先断开蓝牙</string>
+    <string name="data_empty">数据为空</string>
+    <string name="device_not_support">该功能暂不支持</string>
+
+    <string name="syn_motion_status_response">运动状态同步到设备响应</string>
+    <string name="syn_motion_status_to_app">运动状态同步到APP</string>
+    <string name="unbind_device_success">解除绑定成功</string>
+    <string name="unbind_device_fail">解除绑定失败</string>
+    <string name="unbind_device_response">解除绑定响应</string>
+    <string name="bind_device_success">绑定设备成功</string>
+    <string name="bind_device_fail">绑定设备失败</string>
+    <string name="bind_device_response">绑定设备响应</string>
+
+    <string name="gesture_control">手势智控</string>
+    <string name="left_hand">左手</string>
+    <string name="right_hand">右手</string>
+    <string name="raise_hand_brighten">抬手亮屏</string>
+    <string name="flip_wrist_brighten">翻腕亮屏</string>
+    <string name="setup">设置</string>
+    <string name="heart_rate_monitoring">心率监测</string>
+    <string name="enable">启用</string>
+    <string name="interval">间隔</string>
+    <string name="heart_rate_monitoring_interval">间隔</string>
+    <string name="minute">分钟</string>
+    <string name="device_reset">恢复出厂</string>
+    <string name="start_time">开始时间</string>
+    <string name="end_time">结束时间</string>
+
+    <string name="custom_clock_dial_button">自定义表盘</string>
+    <string name="agps_get_agps_data_version">获取AGPS数据版本</string>
+    <string name="agps_write_agps_data">写入AGPS数据</string>
+    <string name="current_status">当前状态</string>
+    <string name="current_clock_dial_list">当前表盘列表</string>
+    <string name="compat_info">兼容性信息</string>
+    <string name="switch_dial">切换表盘</string>
+    <string name="delete_dial">删除表盘</string>
+    <string name="set_dial_background">设置背景</string>
+    <string name="push_dial">推送新表盘</string>
+
+    <string name="device_version_label">设备当前版本:</string>
+    <string name="server_version_label">服务器版本:</string>
+    <string name="upgrade">升级</string>
+    <string name="reading_current_version_from_device">正在读取设备当前版本</string>
+    <string name="query_newer_version_from_server">正在查询可用版本</string>
+    <string name="set_night_mode">夜间模式</string>
+
+    <string name="sun">日</string>
+    <string name="mon">一</string>
+    <string name="tue">二</string>
+    <string name="wed">三</string>
+    <string name="thu">四</string>
+    <string name="fri">五</string>
+    <string name="sat">六</string>
+
+    <string name="repeat">重复</string>
+    <string name="step">步</string>
+    <string name="threshold">阈值</string>
+    <string name="syn_weather">同步天气</string>
+    <string name="select_file_to_upgrade">选文件升级</string>
+    <string name="weather">天气</string>
+    <string name="get_battery_status">电池状态</string>
+    <string name="mtk_sync_birthday">MTK 同步生日</string>
+    <string name="rename_device_bt_name">重命名设备蓝牙名称</string>
+    <string name="bond_auth">绑定授权</string>
+
+</resources>

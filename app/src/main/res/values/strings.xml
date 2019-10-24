@@ -1,0 +1,118 @@
+<resources>
+    <string name="app_name">KCT_MTKSDK demo</string>
+    
+    <string name="no_know_device">Unknown device</string>
+    <string name="ble_not_supported">BLE is not supported in the Smart Phone</string>
+    <string name="error_bluetooth_not_supported">Bluetooth not support</string>
+    <string name="pls_switch_bt_on">"Please switch on Bluetooth"</string>
+
+    <string name="connect_none">Not connected</string>
+    <string name="connecting">Connecting...</string>
+    <string name="connected">Connected</string>
+    <string name="connect_fail">DisConnected</string>
+
+
+    <string name="scan">Scan</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="syn_time">syn_time</string>
+    <string name="syn_firmware">syn_firmware</string>
+    <string name="find_device">find_device</string>
+    <string name="syn_brace">syn_brace</string>
+    <string name="syn_history_run">syn_history_run</string>
+    <string name="syn_history_sleep">syn_history_sleep</string>
+    <string name="syn_history_heart">syn_history_heart</string>
+    <string name="syn_history_sport">syn_history_sport</string>
+    <string name="syn_history_blood">syn_history_blood</string>
+    <string name="syn_history_oxygen">syn_history_oxygen</string>
+    <string name="syn_real_run">syn_real_run</string>
+    <string name="syn_real_heart">syn_real_heart</string>
+    <string name="syn_userInfo">syn_userInfo</string>
+    <string name="syn_camera">syn_camera</string>
+    <string name="syn_unit">syn_unit</string>
+    <string name="syn_notification">syn_notification</string>
+    <string name="syn_call">syn_call</string>
+    <string name="syn_sms">syn_sms</string>
+    <string name="syn_clock">syn_clock</string>
+    <string name="syn_longSit">syn_longSit</string>
+    <string name="syn_water">syn_water</string>
+    <string name="syn_noDir">syn_noDir</string>
+    <string name="syn_qixiang">syn_meteorology</string>
+    <string name="Firmware_upgrade">Firmware_upgrade</string>
+    <string name="syn_motion_status">syn_motion_status</string>
+    <string name="target_setting">target_setting</string>
+    <string name="device_bind">Device_binding_request</string>
+    <string name="device_unbind">Device_unbinding_request</string>
+    <string name="HID_connect">HID_connect</string>
+    <string name="HID_disconnect">HID_disconnect</string>
+    <string name="syn_inquire_flash_version">syn_inquire_flash_version</string>
+    <string name="syn_set_flash_begin_command">syn_set_flash_begin_command</string>
+    <string name="get_flash_data">get_flash_data</string>
+    <string name="send_flash_data">send_flash_data</string>
+
+    <string name="device_not_connect">device is not connect!</string>
+    <string name="please_disconnect">Please disconnect device</string>
+    <string name="data_empty">the data is empty</string>
+    <string name="device_not_support">This feature is not supported at this time!</string>
+
+    <string name="syn_motion_status_response">Motion state synchronization to device response</string>
+    <string name="syn_motion_status_to_app">Motion status sync to APP</string>
+    <string name="unbind_device_success">unbind_device_success</string>
+    <string name="unbind_device_fail">unbind_device_fail</string>
+    <string name="unbind_device_response">unbind_device_response</string>
+    <string name="bind_device_success">bind_device_success</string>
+    <string name="bind_device_fail">bind_device_fail</string>
+    <string name="bind_device_response">bind_device_response</string>
+
+    <string name="gesture_control">Gesture control</string>
+    <string name="left_hand">Left hand</string>
+    <string name="right_hand">Right hand</string>
+    <string name="raise_hand_brighten">Raise hand brighten</string>
+    <string name="flip_wrist_brighten">Flip wrist brighten</string>
+    <string name="setup">Setup</string>
+    <string name="heart_rate_monitoring">Heart rate monitoring</string>
+    <string name="enable">Enable</string>
+    <string name="interval">Interval</string>
+    <string name="heart_rate_monitoring_interval">Heart rate monitoring interval</string>
+    <string name="minute">minute</string>
+    <string name="device_reset">Reset</string>
+    <string name="start_time">start time</string>
+    <string name="end_time">end time</string>
+
+    <string name="custom_clock_dial_button">Clock Dial</string>
+    <string name="agps_get_agps_data_version">Get AGPS data version</string>
+    <string name="agps_write_agps_data">Write AGPS data</string>
+    <string name="current_status">status</string>
+    <string name="current_clock_dial_list">Dial List</string>
+    <string name="compat_info">Compat info</string>
+    <string name="switch_dial">Switch</string>
+    <string name="delete_dial">Delete</string>
+    <string name="set_dial_background">Set background</string>
+    <string name="push_dial">Push</string>
+
+    <string name="device_version_label">current version:</string>
+    <string name="server_version_label">server version:</string>
+    <string name="upgrade">upgrade</string>
+    <string name="reading_current_version_from_device">is reading current version from device</string>
+    <string name="query_newer_version_from_server">querying newer version from server</string>
+    <string name="set_night_mode">set night mode</string>
+
+    <string name="sun">Sun</string>
+    <string name="mon">Mon</string>
+    <string name="tue">Tue</string>
+    <string name="wed">Wed</string>
+    <string name="thu">Thu</string>
+    <string name="fri">Fri</string>
+    <string name="sat">Sat</string>
+
+    <string name="repeat">Repeat</string>
+    <string name="step">step</string>
+    <string name="threshold">Threshold</string>
+    <string name="syn_weather">Syn Weather</string>
+    <string name="select_file_to_upgrade">select file to upgrade</string>
+    <string name="weather">Weather</string>
+    <string name="get_battery_status">battery status</string>
+    <string name="mtk_sync_birthday">MTK sync birthday</string>
+    <string name="rename_device_bt_name">rename dev bt</string>
+    <string name="bond_auth">bond auth</string>
+
+</resources>

@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/connect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/scan" />
+
+            <Button
+                android:id="@+id/disConnect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/disconnect" />
+
+            <Button
+                android:id="@+id/checkDelay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Check Delay" />
+
+            <Button
+                android:id="@+id/syn_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_time" />
+
+            <Button
+                android:id="@+id/syn_mtk_birthday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mtk_sync_birthday"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/syn_firmware"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_firmware" />
+
+
+            <Button
+                android:id="@+id/find_device"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/find_device" />
+
+            <Button
+                android:id="@+id/syn_brace"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_brace" />
+
+
+            <Button
+                android:id="@+id/syn_run"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_history_run" />
+
+            <Button
+                android:id="@+id/syn_sleep"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_history_sleep" />
+
+            <Button
+                android:id="@+id/syn_heart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_history_heart" />
+
+            <Button
+                android:id="@+id/syn_blood"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_history_blood" />
+
+            <Button
+                android:id="@+id/syn_oxygen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_history_oxygen" />
+
+            <Button
+                android:id="@+id/syn_sport"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_history_sport" />
+
+            <Button
+                android:id="@+id/syn_realRun"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_real_run" />
+
+            <Button
+                android:id="@+id/syn_realHeart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_real_heart" />
+
+            <Button
+                android:id="@+id/syn_userInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_userInfo" />
+
+            <Button
+                android:id="@+id/syn_camera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_camera" />
+
+            <Button
+                android:id="@+id/syn_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_unit" />
+
+
+            <Button
+                android:id="@+id/syn_notification"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_notification" />
+
+            <Button
+                android:id="@+id/syn_call"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_call" />
+
+            <Button
+                android:id="@+id/syn_sms"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_sms" />
+
+            <Button
+                android:id="@+id/syn_clock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_clock" />
+
+
+            <Button
+                android:id="@+id/syn_longSit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_longSit" />
+
+
+            <Button
+                android:id="@+id/syn_water"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_water" />
+
+
+            <Button
+                android:id="@+id/syn_noDir"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_noDir" />
+
+            <Button
+                android:id="@+id/firmware_upgrade"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/Firmware_upgrade" />
+
+            <Button
+                android:id="@+id/syn_motion_state_device"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/syn_motion_status" />
+
+
+            <Button
+                android:id="@+id/syn_sport_motion_setting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/target_setting" />
+
+            <Button
+                android:id="@+id/gesture_control"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gesture_control" />
+
+            <Button
+                android:id="@+id/set_night_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/set_night_mode" />
+
+            <Button
+                android:id="@+id/heart_rate_monitoring_setup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/heart_rate_monitoring" />
+
+            <Button
+                android:id="@+id/syn_bind_device"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/device_bind" />
+
+
+            <Button
+                android:id="@+id/syn_unbind_device"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/device_unbind" />
+
+            <Button
+                android:id="@+id/device_reset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/device_reset" />
+
+            <Button
+                android:id="@+id/syn_hid_connect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/HID_connect" />
+
+            <Button
+                android:id="@+id/syn_hid_disConnect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/HID_disconnect" />
+
+            <Button
+                android:id="@+id/push_agps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Push AGPS" />
+
+            <Button
+                android:id="@+id/custom_clock_dial"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/custom_clock_dial_button" />
+
+            <Button
+                android:id="@+id/syn_weather"
+                android:layout_width="wrap_content"
+                android:text="@string/syn_weather"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/get_battery"
+                android:layout_width="wrap_content"
+                android:text="@string/get_battery_status"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/rename_device_bt_name"
+                android:layout_width="wrap_content"
+                android:text="@string/rename_device_bt_name"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/bond_auth"
+                android:layout_width="wrap_content"
+                android:text="@string/bond_auth"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+    </ScrollView>
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="2">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView_device"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="25sp" />
+
+            <TextView
+                android:id="@+id/textView_connectState"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="25sp" />
+
+
+            <TextView
+                android:id="@+id/textView_send"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="send:" />
+
+            <TextView
+                android:id="@+id/textView_send_data"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/textView_receive"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="receive:" />
+
+            <TextView
+                android:id="@+id/textView_receive_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/title"
+                style="@android:style/TextAppearance.Large"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/syn_longSit"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/start_time_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/start_time"
+                app:layout_constraintBottom_toBottomOf="@id/start_time"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/start_time" />
+
+
+            <TimePicker
+                android:id="@+id/start_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:timePickerMode="spinner"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/start_time_label"
+                app:layout_constraintTop_toBottomOf="@id/title" />
+
+            <TextView
+                android:id="@+id/end_time_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/end_time"
+                app:layout_constraintBottom_toBottomOf="@id/end_time"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/end_time" />
+
+            <TimePicker
+                android:id="@+id/end_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:timePickerMode="spinner"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/end_time_label"
+                app:layout_constraintTop_toBottomOf="@id/start_time" />
+
+            <TextView
+                android:id="@+id/repeat_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/repeat"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/end_time" />
+
+            <CheckBox
+                android:id="@+id/repeat_sun"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:checked="true"
+                android:text="@string/sun"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/repeat_label" />
+
+            <CheckBox
+                android:id="@+id/repeat_mon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/mon"
+                app:layout_constraintStart_toStartOf="@id/repeat_sun"
+                app:layout_constraintTop_toBottomOf="@id/repeat_sun" />
+
+            <CheckBox
+                android:id="@+id/repeat_tue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:checked="true"
+                android:text="@string/tue"
+                app:layout_constraintBottom_toBottomOf="@id/repeat_mon"
+                app:layout_constraintStart_toEndOf="@id/repeat_mon"
+                app:layout_constraintTop_toTopOf="@id/repeat_mon" />
+
+            <CheckBox
+                android:id="@+id/repeat_wed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:checked="true"
+                android:text="@string/wed"
+                app:layout_constraintBottom_toBottomOf="@id/repeat_mon"
+                app:layout_constraintStart_toEndOf="@id/repeat_tue"
+                app:layout_constraintTop_toTopOf="@id/repeat_mon" />
+
+            <CheckBox
+                android:id="@+id/repeat_thu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:checked="true"
+                android:text="@string/thu"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/repeat_mon" />
+
+            <CheckBox
+                android:id="@+id/repeat_fri"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/fri"
+                app:layout_constraintBottom_toBottomOf="@id/repeat_thu"
+                app:layout_constraintStart_toStartOf="@id/repeat_tue"
+                app:layout_constraintTop_toTopOf="@id/repeat_thu" />
+
+            <CheckBox
+                android:id="@+id/repeat_sat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/sat"
+                app:layout_constraintBottom_toBottomOf="@id/repeat_thu"
+                app:layout_constraintStart_toStartOf="@id/repeat_wed"
+                app:layout_constraintTop_toTopOf="@id/repeat_thu" />
+
+
+            <TextView
+                android:id="@+id/interval_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/interval"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="@id/interval"
+                app:layout_constraintEnd_toStartOf="@id/interval"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/interval" />
+
+            <EditText
+                android:id="@+id/interval"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="16dp"
+                android:hint="@string/heart_rate_monitoring_interval"
+                android:inputType="number"
+                android:maxLength="9"
+                android:text="10"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/interval_unit"
+                app:layout_constraintStart_toEndOf="@id/interval_label"
+                app:layout_constraintTop_toBottomOf="@id/repeat_sat" />
+
+            <TextView
+                android:id="@+id/interval_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="@string/minute"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="@id/interval"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/interval"
+                app:layout_constraintTop_toTopOf="@id/interval" />
+
+            <TextView
+                android:id="@+id/threshold_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/threshold"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="@id/threshold"
+                app:layout_constraintEnd_toStartOf="@id/threshold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/threshold" />
+
+            <EditText
+                android:id="@+id/threshold"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="16dp"
+                android:hint="@string/heart_rate_monitoring_interval"
+                android:inputType="number"
+                android:maxLength="9"
+                android:text="1000"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/threshold_unit"
+                app:layout_constraintStart_toEndOf="@id/threshold_label"
+                app:layout_constraintTop_toBottomOf="@id/interval" />
+
+            <TextView
+                android:id="@+id/threshold_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="@string/step"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="@id/threshold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/threshold"
+                app:layout_constraintTop_toTopOf="@id/threshold" />
+
+            <CheckBox
+                android:id="@+id/enable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:checked="true"
+                android:text="@string/enable"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/threshold" />
+
+            <Button
+                android:id="@+id/setup"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:onClick="onClick"
+                android:text="@string/setup"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/enable" />
+
+        </android.support.constraint.ConstraintLayout>
+
+    </ScrollView>
+
+</android.support.constraint.ConstraintLayout>
