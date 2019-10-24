@@ -111,6 +111,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     REQUEST_EXTERNAL_STORAGE);
         }
 
+        // define button here
+
         findViewById(R.id.connect).setOnClickListener(this);
         findViewById(R.id.disConnect).setOnClickListener(this);
         findViewById(R.id.checkDelay).setOnClickListener(this);
