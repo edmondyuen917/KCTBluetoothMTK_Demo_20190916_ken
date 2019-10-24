@@ -164,6 +164,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    // define button click event
+
     @Override
     public void onClick(View v) {
         switch (v.getId()){
