@@ -113,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // define button here
 
-        findViewById(R.id.test).setOnClickListener(this);
         findViewById(R.id.connect).setOnClickListener(this);
         findViewById(R.id.disConnect).setOnClickListener(this);
         findViewById(R.id.checkDelay).setOnClickListener(this);
@@ -170,9 +169,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.test:
-                Toast.makeText(this,"Test",Toast.LENGTH_SHORT).show();
-                break;
             case R.id.connect:
                 if(KCTBluetoothManager.getInstance().getConnectState() == KCTBluetoothManager.STATE_CONNECTED){
                     Toast.makeText(this,getString(R.string.please_disconnect),Toast.LENGTH_SHORT).show();
