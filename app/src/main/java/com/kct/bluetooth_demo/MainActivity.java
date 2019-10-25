@@ -5,7 +5,6 @@ import android.Manifest;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -88,6 +87,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /*
+    feature 1
+    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
