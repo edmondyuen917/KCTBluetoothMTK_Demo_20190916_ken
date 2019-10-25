@@ -5,7 +5,6 @@ import android.Manifest;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -105,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     master 2
     master 3
     master 4
+    master 5
     */
 
 
