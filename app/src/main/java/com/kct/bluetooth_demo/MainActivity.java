@@ -53,6 +53,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Manifest.permission.READ_PHONE_STATE
     };
 
+
+    /*
+            debug 1 again
+
+
+
+     */
+
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onServiceEventMainThread(MessageEvent messageEvent){
         if(messageEvent != null && messageEvent.getMessage() != null){
