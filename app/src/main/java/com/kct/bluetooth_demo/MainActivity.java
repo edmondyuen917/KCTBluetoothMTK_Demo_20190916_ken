@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     master 4
     master 5
     master 6
+    MASTER 7
     */
 
 
