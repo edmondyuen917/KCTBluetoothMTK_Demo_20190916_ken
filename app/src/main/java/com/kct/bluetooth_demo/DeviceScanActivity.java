@@ -23,7 +23,7 @@ import com.kct.bluetooth.callback.IConnectListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeviceScanActivity extends AppCompatActivity implements View.OnClickListener{
+public class DeviceScanActivity extends AppCompatActivity implements View.OnClickListener {
 
     private ListView deviceLv;
     private BluetoothAdapter bluetoothAdapter;
@@ -45,8 +45,8 @@ public class DeviceScanActivity extends AppCompatActivity implements View.OnClic
     private IConnectListener iConnectListener = new IConnectListener() {
         @Override
         public void onConnectState(int state) {
-            Log.e("[DeviceScanActivity]","state = " + state);
-            if(state == 3){
+            Log.e("[DeviceScanActivity]", "state = " + state);
+            if (state == 3) {
                 getSharedPreferences("bluetooth", 0)
                         .edit()
                         .putBoolean("reconnect", true)
@@ -62,17 +62,17 @@ public class DeviceScanActivity extends AppCompatActivity implements View.OnClic
         @Override
         public void onScanDevice(final BluetoothLeDevice device) {
             final BluetoothDevice bluetoothDevice = device.getDevice();
-            if(null != bluetoothDevice.getName()) {
+            if (null != bluetoothDevice.getName()) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         boolean isFound = false;
                         for (int i = 0; i < list.size(); i++) {
-                            if(list.get(i).getDevice().equals(bluetoothDevice)){
+                            if (list.get(i).getDevice().equals(bluetoothDevice)) {
                                 isFound = true;
                             }
                         }
-                        if(!isFound) {
+                        if (!isFound) {
                             list.add(device);
                             bluetoothLeDeviceList.add(device);
                             adapter.setDeviceList(bluetoothLeDeviceList);
@@ -95,13 +95,21 @@ public class DeviceScanActivity extends AppCompatActivity implements View.OnClic
         setContentView(R.layout.activity_device_scan);
         init();
 
-        if(Build.VERSION.SDK_INT >= 23 ) {
-            if (this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) !=
-                    PackageManager.PERMISSION_GRANTED) ;
-            if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) !=
-                    PackageManager.PERMISSION_GRANTED) ;
-            requestPermissions(PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE);
+        SharedPreferences sharedpreferences = getSharedPreferences("MyPref", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+
+        if (!sharedpreferences.getBoolean("DeviceScanPermission", false)) {
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) !=
+                        PackageManager.PERMISSION_GRANTED) ;
+                if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                        PackageManager.PERMISSION_GRANTED) ;
+                {
+                    requestPermissions(PERMISSIONS_STORAGE,
+                            REQUEST_EXTERNAL_STORAGE);
+                    editor.putBoolean("DeviceScanPermission", true).commit();
+                }
+            }
         }
         KCTBluetoothManager.getInstance().registerListener(iConnectListener);
     }
@@ -177,18 +185,18 @@ public class DeviceScanActivity extends AppCompatActivity implements View.OnClic
     }
 
 
-    private void startScan(){
+    private void startScan() {
         KCTBluetoothManager.getInstance().scanDevice(true);
     }
 
 
-    private void stopScan(){
+    private void stopScan() {
         KCTBluetoothManager.getInstance().scanDevice(false);
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.img_bluetooth_sesarch:
                 stopScan();
                 imageView.setVisibility(View.GONE);
