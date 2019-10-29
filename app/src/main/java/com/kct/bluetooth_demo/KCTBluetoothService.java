@@ -17,6 +17,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -34,9 +35,12 @@ import com.kct.command.KCTBluetoothCommand;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,7 +52,7 @@ import java.util.Map;
  */
 
 @SuppressLint("NewApi")
-public class KCTBluetoothService extends Service{
+public class KCTBluetoothService extends Service {
 
     private static final String TAG = KCTBluetoothService.class.getSimpleName();
     private static final Context mContext = KCTApp.getInstance().getApplicationContext();
@@ -59,6 +63,7 @@ public class KCTBluetoothService extends Service{
     private final List<Integer> mMTKSportHistoryIndexList = new ArrayList<>();
 
     private LocationManager mLocationManager;
+
     public class LocalBinder extends Binder {
         public KCTBluetoothService getService() {
             return KCTBluetoothService.this;
@@ -123,68 +128,28 @@ public class KCTBluetoothService extends Service{
     }
 
 
-    private IConnectListener iConnectListener = new IConnectListener() {
+    private Runnable mReconnectTask = new Runnable() {
         @Override
-        public void onConnectState(int state) {   //
-            EventBus.getDefault().post(new MessageEvent(MessageEvent.CONNECT_STATE, state));
-            if (state == KCTBluetoothManager.STATE_CONNECT_FAIL) {
-                if (!isDFU) {
-                    SharedPreferences preferences = mContext.getSharedPreferences("bluetooth",0);
-                    String addr = preferences.getString("address", null);
-                    boolean reconnect = preferences.getBoolean("reconnect", false);
-                    if (!TextUtils.isEmpty(addr) && reconnect) {
-                        mExecutor.cancel(mReconnectTask);
-                        mExecutor.executeDelayed(mReconnectTask, 3000);
-                    }
+        public void run() {
+            SharedPreferences preferences = mContext.getSharedPreferences("bluetooth", 0);
+            String addr = preferences.getString("address", null);
+            int deviceType = preferences.getInt("deviceType", KCTBluetoothManager.DEVICE_NONE);
+            boolean reconnect = preferences.getBoolean("reconnect", false);
+            if (!TextUtils.isEmpty(addr) && reconnect
+                    && (deviceType == KCTBluetoothManager.DEVICE_BLE || deviceType == KCTBluetoothManager.DEVICE_MTK)
+                    && mBluetoothAdapter.isEnabled()) {
+                try {
+                    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(addr);
+                    KCTBluetoothManager.getInstance().connect(device, deviceType);
+                } catch (Exception e) {
+                    Log.e(TAG, "try reconnect", e);
                 }
             }
-        }
-
-        @Override
-        public void onConnectDevice(BluetoothDevice device) {
-            SharedPreferences preferences = mContext.getSharedPreferences("bluetooth",0);
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("address",device.getAddress());
-            editor.putString("addressName",device.getName());
-            editor.apply();
-            EventBus.getDefault().post(new MessageEvent(MessageEvent.CONNECT_DEVICE, device));
-        }
-
-        @Override
-        public void onScanDevice(BluetoothLeDevice device) {
-            if (!isDFU) {
-                SharedPreferences preferences = mContext.getSharedPreferences("bluetooth", 0);
-                String address = preferences.getString("address", "");
-                boolean reconnect = preferences.getBoolean("reconnect", false);
-                if (reconnect && device.getAddress().equals(address)) {
-                    Log.d(TAG, "reconnect address=" + address);
-                    Log.d(TAG, "device address=" + device.getAddress());
-
-                    KCTBluetoothManager.getInstance().scanDevice(false);
-                    preferences.edit()
-                            .putString("address", device.getAddress())
-                            .putString("addressName", device.getName())
-                            .putInt("deviceType", device.getDeviceType())
-                            .apply();
-                    KCTBluetoothManager.getInstance().connect(device.getDevice(), device.getDeviceType());
-                }
-            }
-        }
-
-        @Override
-        public void onCommand_d2a(byte[] bytes) {
-            Log.i(TAG, "onCommand_d2a: " + Utils.bytesToHex(bytes));
-            EventBus.getDefault().post(new MessageEvent(MessageEvent.RECEIVE_DATA, bytes));
-            if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK){
-                KCTBluetoothCommand.getInstance().d2a_MTK_command(bytes,iReceiveCallback);
-            }else {
-                KCTBluetoothCommand.getInstance().d2a_command_Parse(mContext, bytes, iReceiveCallback);
-            }
-
         }
     };
 
     private Executor mExecutor = new Executor(this);
+
     private static class Executor extends android.os.Handler {
         private static final int RUN_RUNNABLE = 0;
 
@@ -222,75 +187,15 @@ public class KCTBluetoothService extends Service{
             removeMessages(RUN_RUNNABLE, task);
         }
     }
-
-    private Runnable mReconnectTask = new Runnable() {
-        @Override
-        public void run() {
-            SharedPreferences preferences = mContext.getSharedPreferences("bluetooth",0);
-            String addr = preferences.getString("address", null);
-            int deviceType = preferences.getInt("deviceType", KCTBluetoothManager.DEVICE_NONE);
-            boolean reconnect = preferences.getBoolean("reconnect", false);
-            if (!TextUtils.isEmpty(addr) && reconnect
-                    && (deviceType == KCTBluetoothManager.DEVICE_BLE || deviceType == KCTBluetoothManager.DEVICE_MTK)
-                    && mBluetoothAdapter.isEnabled()) {
-                try {
-                    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(addr);
-                    KCTBluetoothManager.getInstance().connect(device, deviceType);
-                } catch (Exception e) {
-                    Log.e(TAG, "try reconnect", e);
-                }
-            }
-        }
-    };
-
-    private BroadcastReceiver mBroadcastReceiver;
-    private void registerReceiver() {
-        if (mBroadcastReceiver == null) {
-            mBroadcastReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    String action = intent.getAction();
-                    if (!TextUtils.isEmpty(action)) {
-                        switch (action) {
-                            case BluetoothAdapter.ACTION_STATE_CHANGED: {
-                                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
-                                if (state == BluetoothAdapter.STATE_ON) {
-//                                    mExecutor.cancel(mReconnectTask);
-//                                    mExecutor.executeDelayed(mReconnectTask, 5000);
-                                    SharedPreferences preferences = mContext.getSharedPreferences("bluetooth",0);
-                                    String addr = preferences.getString("address", null);
-                                    boolean reconnect = preferences.getBoolean("reconnect", false);
-                                    if (!TextUtils.isEmpty(addr) && reconnect) {
-                                        KCTBluetoothManager.getInstance().scanDevice(true);
-                                    }
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-            };
-
-            registerReceiver(mBroadcastReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
-        }
-    }
-
-    private void unRegisterReceiver() {
-        if (mBroadcastReceiver != null) {
-            unregisterReceiver(mBroadcastReceiver);
-            mBroadcastReceiver = null;
-        }
-    }
-
     private IReceiveListener iReceiveCallback = new IReceiveListener() {
 
         @Override
         public void onReceive(int i, boolean b, Object... objects) {
             Log.e(TAG, i + ", " + b);
-            if(b){
-                switch (i){
+            if (b) {
+                switch (i) {
                     case 0:
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK) {
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK) {
                             // BLE_COMMAND_a2d_sendMTKConfig_pack response
                             HashMap<String, String> map = (HashMap<String, String>) objects[0];
                             Log.e(TAG, "name = " + map.get("name"));
@@ -343,6 +248,7 @@ public class KCTBluetoothService extends Service{
                             sb.append("heart_set: ").append(map.get("heart_set")).append('\n');
                             sb.append("drink_set: ").append(map.get("drink_set")).append('\n');
                             sb.append("drink_set: ").append(map.get("drink_set")).append('\n');
+                            SaveLog(sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                         }
                         break;
@@ -381,11 +287,11 @@ public class KCTBluetoothService extends Service{
 
                     case 10:    //MTK_current_run
                         // BLE_COMMAND_a2d_sendMTKCurrentAllRun_pack response
-                        if(objects[0] instanceof String && objects[0].equals("")){   //判断数据是否为空
-                            Log.e(TAG,getString(R.string.data_empty));
+                        if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                            Log.e(TAG, getString(R.string.data_empty));
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, "BLE_COMMAND_a2d_sendMTKCurrentAllRun_pack response\n\nthe data is empty"));
-                        }else {
-                            ArrayList<HashMap<String,Object>> runList = (ArrayList<HashMap<String, Object>>) objects[0];
+                        } else {
+                            ArrayList<HashMap<String, Object>> runList = (ArrayList<HashMap<String, Object>>) objects[0];
                             if (runList != null && runList.size() > 0) {
                                 StringBuilder sb = new StringBuilder("BLE_COMMAND_a2d_sendMTKCurrentAllRun_pack response\n\n");
                                 sb.append("------------------------------\n");
@@ -414,10 +320,10 @@ public class KCTBluetoothService extends Service{
                         break;
                     case 11:    //MTK_burst_run
                         // BLE_COMMAND_a2d_retMTKBurstRun_pack response
-                        if(objects[0] instanceof String && objects[0].equals("")){   //判断数据是否为空
-                            Log.e(TAG,getString(R.string.data_empty));
+                        if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                            Log.e(TAG, getString(R.string.data_empty));
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, "BLE_COMMAND_a2d_retMTKBurstRun_pack response\n\nthe data is empty"));
-                        }else {
+                        } else {
                             ArrayList runLists = (ArrayList) objects[0];
                             if (runLists != null && runLists.size() > 0) {
                                 StringBuilder sb = new StringBuilder("BLE_COMMAND_a2d_retMTKBurstRun_pack response\n\n");
@@ -455,7 +361,7 @@ public class KCTBluetoothService extends Service{
                         break;
                     case 13:    //MTK_sleep
                         // BLE_COMMAND_a2d_sendMTKBurstSleep_pack response
-                        if(objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                        if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
                             if (objects[0].equals("")) {
                                 Log.e(TAG, getString(R.string.data_empty));
                                 EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, "BLE_COMMAND_a2d_sendMTKBurstSleep_pack response\n\nthe data is empty"));
@@ -482,7 +388,7 @@ public class KCTBluetoothService extends Service{
                                     sb.append("mode: ").append(mode).append('\n');
                                     sb.append("------------------------------\n");
                                 }
-
+                                SaveLog(sb);
                                 EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                             } else {
                                 EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, "BLE_COMMAND_a2d_sendMTKBurstSleep_pack response\n\nempty"));
@@ -491,10 +397,10 @@ public class KCTBluetoothService extends Service{
                         break;
                     case 14:    //MTK_heart
                         // BLE_COMMAND_a2d_sendMTKHeart_pack response
-                        if(objects[0] instanceof String && objects[0].equals("")){   //判断数据是否为空
-                            Log.e(TAG,getString(R.string.data_empty));
+                        if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                            Log.e(TAG, getString(R.string.data_empty));
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, "BLE_COMMAND_a2d_sendMTKHeart_pack response\n\nthe data is empty"));
-                        }else {
+                        } else {
                             ArrayList runLists = (ArrayList) objects[0];
                             if (runLists != null && runLists.size() > 0) {
                                 StringBuilder sb = new StringBuilder("BLE_COMMAND_a2d_sendMTKHeart_pack response\n\n");
@@ -516,7 +422,7 @@ public class KCTBluetoothService extends Service{
                         }
                         break;
                     case 0x13:
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
                             // BLE_COMMAND_a2d_getFirmwareData_pack response
                             String version = (String) objects[0];
                             int braceletType = (int) objects[1];
@@ -535,13 +441,13 @@ public class KCTBluetoothService extends Service{
                             sb.append("braceletType: ").append(braceletType).append('\n');
                             sb.append("platformCode: ").append(platformCode).append('\n');
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
-                        }else if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK){
+                        } else if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK) {
                             // BLE_COMMAND_a2d_sendMTKPressure_pack response
                             StringBuilder sb = new StringBuilder("BLE_COMMAND_a2d_sendMTKPressure_pack response\n\n");
-                            if(objects[0] instanceof String && objects[0].equals("")){   //判断数据是否为空
-                                Log.e(TAG,getString(R.string.data_empty));
+                            if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                                Log.e(TAG, getString(R.string.data_empty));
                                 sb.append("the data is empty");
-                            }else {
+                            } else {
                                 ArrayList runLists = (ArrayList) objects[0];
                                 if (runLists != null && runLists.size() > 0) {
                                     sb.append("------------------------------\n");
@@ -550,7 +456,7 @@ public class KCTBluetoothService extends Service{
                                         String date = (String) runMaps.get("date");
                                         String highBp = (String) runMaps.get("highBp");
                                         String lowBp = (String) runMaps.get("lowBp");
-                                        Log.e(TAG, "blood = " + date + " : " + highBp +  " : " + lowBp);
+                                        Log.e(TAG, "blood = " + date + " : " + highBp + " : " + lowBp);
 
                                         sb.append("date: ").append(date).append('\n');
                                         sb.append("highBp: ").append(highBp).append('\n');
@@ -565,13 +471,13 @@ public class KCTBluetoothService extends Service{
                         }
                         break;
                     case 0x14:
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK){
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK) {
                             // BLE_COMMAND_a2d_sendMTKOxyen_pack response
                             StringBuilder sb = new StringBuilder("BLE_COMMAND_a2d_sendMTKOxyen_pack response\n\n");
-                            if(objects[0] instanceof String && objects[0].equals("")){   //判断数据是否为空
-                                Log.e(TAG,getString(R.string.data_empty));
+                            if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                                Log.e(TAG, getString(R.string.data_empty));
                                 sb.append("the data is empty");
-                            }else {
+                            } else {
                                 ArrayList runLists = (ArrayList) objects[0];
                                 if (runLists != null && runLists.size() > 0) {
                                     sb.append("------------------------------\n");
@@ -593,10 +499,10 @@ public class KCTBluetoothService extends Service{
                         }
                         break;
                     case 0x15:
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK){
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK) {
                             // device notify APP: user info
                             StringBuilder sb = new StringBuilder("user info:\n\n");
-                            if(objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                            if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
                                 Log.e(TAG, getString(R.string.data_empty));
                                 sb.append("the data is empty");
                             } else if (objects[0] instanceof HashMap) {
@@ -613,11 +519,12 @@ public class KCTBluetoothService extends Service{
                             } else {
                                 sb.append("empty");
                             }
+                            SaveLog(sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.DEVICE_NOTI_INFO, sb.toString()));
                         }
                         break;
                     case 0x16:
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK){
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK) {
                             StringBuilder sb = new StringBuilder();
                             if (objects.length > 0 && objects[0] instanceof String) {
                                 switch ((String) objects[0]) {
@@ -701,19 +608,19 @@ public class KCTBluetoothService extends Service{
                                         EventBus.getDefault().post(new MessageEvent(MessageEvent.RECEIVE_DATA, sb.toString()));
                                         break;
                                 }
-                                Log.e(TAG,sb.toString());
+                                Log.e(TAG, sb.toString());
                             }
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.DEVICE_NOTI_INFO, sb.toString()));
                         }
                         break;
                     case 0x17:
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK){
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK) {
                             // device notify APP: steps info
                             StringBuilder sb = new StringBuilder("steps info:\n\n");
-                            if(objects[0] instanceof String && objects[0].equals("")){   //判断数据是否为空
-                                Log.e(TAG,getString(R.string.data_empty));
+                            if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                                Log.e(TAG, getString(R.string.data_empty));
                                 sb.append("the data is empty");
-                            }else {
+                            } else {
                                 HashMap<String, Object> runMaps = (HashMap<String, Object>) objects[0];
                                 String date = (String) runMaps.get("date");
                                 String step = (String) runMaps.get("step");
@@ -728,33 +635,35 @@ public class KCTBluetoothService extends Service{
                                 sb.append("distance: ").append(distance).append('\n');
                                 sb.append("time: ").append(time).append('\n');
                             }
+                            SaveLog(sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.DEVICE_NOTI_INFO, sb.toString()));
                         }
                         break;
                     case 0x18:
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK){
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK) {
                             // device notify APP: heart rate
                             StringBuilder sb = new StringBuilder("heart rate:\n\n");
-                            if(objects[0] instanceof String && objects[0].equals("")){   //判断数据是否为空
-                                Log.e(TAG,getString(R.string.data_empty));
+                            if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                                Log.e(TAG, getString(R.string.data_empty));
                                 sb.append("the data is empty");
-                            }else {
-                                Log.e(TAG,"heart_real = " + objects[0] + " : " + objects[1]);
+                            } else {
+                                Log.e(TAG, "heart_real = " + objects[0] + " : " + objects[1]);
                                 sb.append("date: ").append(objects[0]).append('\n');
                                 sb.append("heart: ").append(objects[1]).append('\n');
                             }
+                            SaveLog(sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.DEVICE_NOTI_INFO, sb.toString()));
                         }
                         break;
                     case 0x19:
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK){
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK) {
                             // device notify APP: blood pressure
                             StringBuilder sb = new StringBuilder("blood pressure\n\n");
-                            if(objects[0] instanceof String && objects[0].equals("")){   //判断数据是否为空
-                                Log.e(TAG,getString(R.string.data_empty));
+                            if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                                Log.e(TAG, getString(R.string.data_empty));
                                 sb.append("the data is empty");
-                            }else {
-                                Log.e(TAG,"blood_real = " + objects[0] + " : " + objects[1] + " : " + objects[2]);
+                            } else {
+                                Log.e(TAG, "blood_real = " + objects[0] + " : " + objects[1] + " : " + objects[2]);
                                 sb.append("date: ").append(objects[0]).append('\n');
                                 sb.append("highBp: ").append(objects[1]).append('\n');
                                 sb.append("lowBp: ").append(objects[2]).append('\n');
@@ -763,26 +672,26 @@ public class KCTBluetoothService extends Service{
                         }
                         break;
                     case 0x1A:
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK){
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK) {
                             // device notify APP: Oxygen saturation
                             StringBuilder sb = new StringBuilder("Oxygen saturation\n\n");
-                            if(objects[0] instanceof String && objects[0].equals("")){   //判断数据是否为空
-                                Log.e(TAG,getString(R.string.data_empty));
+                            if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                                Log.e(TAG, getString(R.string.data_empty));
                                 sb.append("the data is empty");
-                            }else {
-                                Log.e(TAG,"oxygen_real = " + objects[0] + " : " + objects[1]);
+                            } else {
+                                Log.e(TAG, "oxygen_real = " + objects[0] + " : " + objects[1]);
                                 sb.append("date: ").append(objects[0]).append('\n');
                                 sb.append("oxy: ").append(objects[1]).append('\n');
                             }
                         }
                         break;
                     case 0x53:
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK){
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK) {
                             // ？？？
-                            if(objects[0] instanceof String && objects[0].equals("")){   //判断数据是否为空
-                                Log.e(TAG,getString(R.string.data_empty));
-                            }else {
-                                Log.e(TAG,"unit setting = " + objects[0] + " : " + objects[1]);
+                            if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                                Log.e(TAG, getString(R.string.data_empty));
+                            } else {
+                                Log.e(TAG, "unit setting = " + objects[0] + " : " + objects[1]);
                             }
                         }
                         break;
@@ -791,7 +700,7 @@ public class KCTBluetoothService extends Service{
                         EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, "BLE_COMMAND_a2d_settime_pack response\n\ndone"));
                         break;
                     case 0x28:
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK){
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK) {
                             // find phone or device
                             StringBuilder sb = new StringBuilder();
                             if (objects.length > 0 && objects[0] instanceof String) {
@@ -863,21 +772,21 @@ public class KCTBluetoothService extends Service{
                                         EventBus.getDefault().post(new MessageEvent(MessageEvent.RECEIVE_DATA, sb.toString()));
                                         break;
                                 }
-                                Log.e(TAG,sb.toString());
+                                Log.e(TAG, sb.toString());
                             }
                         }
                         break;
                     case 0x2B:
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK){
-                            if(objects[0] instanceof String && objects[0].equals("")){   //判断数据是否为空
-                                Log.e(TAG,getString(R.string.data_empty));
-                            }else {
-                                Log.e(TAG,"music = " + objects[0]);
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK) {
+                            if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                                Log.e(TAG, getString(R.string.data_empty));
+                            } else {
+                                Log.e(TAG, "music = " + objects[0]);
                             }
                         }
                         break;
                     case 0x11:
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
                             // BLE_COMMAND_a2d_sendFirmwareUpdate_pack response
                             StringBuilder sb = new StringBuilder("BLE_COMMAND_a2d_sendFirmwareUpdate_pack response\n\n");
                             if (objects[0] instanceof String && objects[0].equals("")) {
@@ -889,10 +798,10 @@ public class KCTBluetoothService extends Service{
                             Log.e(TAG, "ota");
                             isDFU = true;
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.OTA));
-                        }else if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK){
-                            if(objects[0] instanceof String && objects[0].equals("")){   //判断数据是否为空
-                                Log.e(TAG,getString(R.string.data_empty));
-                            }else {
+                        } else if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK) {
+                            if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                                Log.e(TAG, getString(R.string.data_empty));
+                            } else {
                                 // If you get index data, you can put the index value into the BLEBluetoothManager.BLE_COMMAND_a2d_sendMTKSportData_pack() request motion data.
                                 Log.e(TAG, "sport_index = " + objects[0]);
                                 try {
@@ -958,7 +867,7 @@ public class KCTBluetoothService extends Service{
                                 try {
                                     String sport_index = (String) sportMap.get("sport_index");
                                     int index = Integer.parseInt(sport_index);
-                                    for (Iterator<Integer> it = mMTKSportHistoryIndexList.iterator(); it.hasNext();) {
+                                    for (Iterator<Integer> it = mMTKSportHistoryIndexList.iterator(); it.hasNext(); ) {
                                         Integer idx = it.next();
                                         if (idx.equals(index)) {
                                             it.remove();
@@ -996,7 +905,7 @@ public class KCTBluetoothService extends Service{
                         }
                         break;
                     case 0x2F:
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
                             // BLE_COMMAND_a2d_getBraceletSet_pack response
                             StringBuilder sb = new StringBuilder("BLE_COMMAND_a2d_getBraceletSet_pack response\n\n");
                             ArrayList<HashMap<String, Object>> list = (ArrayList<HashMap<String, Object>>) objects[0];
@@ -1209,14 +1118,14 @@ public class KCTBluetoothService extends Service{
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                         }
                         break;
-                    case (byte)0xA2:    //history_sleep
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
+                    case (byte) 0xA2:    //history_sleep
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
                             // BLE_COMMAND_a2d_synData_pack(type=1) response
                             StringBuilder sb = new StringBuilder("BLE_COMMAND_a2d_synData_pack response\n\n");
-                            if(objects[0] instanceof String && objects[0].equals("")){   //判断数据是否为空
-                                Log.e(TAG,getString(R.string.data_empty));
+                            if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                                Log.e(TAG, getString(R.string.data_empty));
                                 sb.append("the data is empty");
-                            }else {
+                            } else {
                                 int sleepYear = (int) objects[0];
                                 int sleepMonth = (int) objects[1];
                                 int sleepDay = (int) objects[2];
@@ -1239,17 +1148,18 @@ public class KCTBluetoothService extends Service{
                                     sb.append("------------------------------\n");
                                 }
                             }
+                            SaveLog(sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                         }
                         break;
-                    case (byte)0xA3:  //history_run
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
+                    case (byte) 0xA3:  //history_run
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
                             // BLE_COMMAND_a2d_synData_pack(type=3) response
                             StringBuilder sb = new StringBuilder("BLE_COMMAND_a2d_synData_pack response\n\n");
-                            if(objects[0] instanceof String && objects[0].equals("")){   //判断数据是否为空
-                                Log.e(TAG,getString(R.string.data_empty));
+                            if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                                Log.e(TAG, getString(R.string.data_empty));
                                 sb.append("the data is empty");
-                            }else {
+                            } else {
                                 ArrayList<HashMap<String, Object>> runList = (ArrayList<HashMap<String, Object>>) objects[0];
                                 sb.append("------------------------------\n");
                                 for (int j = 0; j < runList.size(); j++) {
@@ -1272,19 +1182,21 @@ public class KCTBluetoothService extends Service{
                                     sb.append("calorie: ").append(calorie).append('\n');
                                     sb.append("distance: ").append(distance).append('\n');
                                     sb.append("------------------------------\n");
+
                                 }
                             }
+                            SaveLog(sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                         }
                         break;
-                    case (byte)0xA4:      //history_heart
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
+                    case (byte) 0xA4:      //history_heart
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
                             // BLE_COMMAND_a2d_synData_pack(type=2) response
                             StringBuilder sb = new StringBuilder("BLE_COMMAND_a2d_synData_pack response\n\n");
-                            if(objects[0] instanceof String && objects[0].equals("")){   //判断数据是否为空
-                                Log.e(TAG,getString(R.string.data_empty));
+                            if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                                Log.e(TAG, getString(R.string.data_empty));
                                 sb.append("the data is empty");
-                            }else {
+                            } else {
                                 ArrayList<HashMap<String, Object>> heartList = (ArrayList<HashMap<String, Object>>) objects[0];
                                 sb.append("------------------------------\n");
                                 for (int j = 0; j < heartList.size(); j++) {
@@ -1308,17 +1220,18 @@ public class KCTBluetoothService extends Service{
                                     sb.append("------------------------------\n");
                                 }
                             }
+                            SaveLog(sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                         }
                         break;
-                    case (byte)0xA5:   //history_sport
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
+                    case (byte) 0xA5:   //history_sport
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
                             // BLE_COMMAND_a2d_synData_pack(type=4) response
                             StringBuilder sb = new StringBuilder("BLE_COMMAND_a2d_synData_pack response\n\n");
-                            if(objects[0] instanceof String && objects[0].equals("")){   //判断数据是否为空
-                                Log.e(TAG,getString(R.string.data_empty));
+                            if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
+                                Log.e(TAG, getString(R.string.data_empty));
                                 sb.append("the data is empty");
-                            }else if (objects[0] instanceof ArrayList) {
+                            } else if (objects[0] instanceof ArrayList) {
                                 ArrayList<HashMap<String, Object>> sportList = (ArrayList<HashMap<String, Object>>) objects[0];
                                 sb.append("------------------------------\n");
                                 for (int j = 0; j < sportList.size(); j++) {
@@ -1425,11 +1338,12 @@ public class KCTBluetoothService extends Service{
                                     sb.append("------------------------------\n");
                                 }
                             }
+                            SaveLog(sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                         }
                         break;
                     case 0x10ABA00:   //history_sport
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
                             // BLE_COMMAND_a2d_synData_pack(type=4) response
                             StringBuilder sb = new StringBuilder("BLE_COMMAND_a2d_synData_pack response\n\n");
                             if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
@@ -1457,19 +1371,19 @@ public class KCTBluetoothService extends Service{
                             }
                         }
                         break;
-                    case (byte)0xAB:   //real_heart
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
+                    case (byte) 0xAB:   //real_heart
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
                             // realtime heart rate report
                             if (objects[0] instanceof String && objects[0].equals("")) {
-                                Log.e(TAG,getString(R.string.data_empty));
+                                Log.e(TAG, getString(R.string.data_empty));
                             } else {
                                 Log.e(TAG, "heart = " + (int) objects[0]);
                                 EventBus.getDefault().post(new MessageEvent(MessageEvent.DEVICE_NOTI_INFO, "heart: " + objects[0]));
                             }
                         }
                         break;
-                    case (byte)0xAC:  //real_run
-                        if(KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
+                    case (byte) 0xAC:  //real_run
+                        if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
                             // realtime run info report
                             if (objects[0] instanceof String && objects[0].equals("")) {
                                 Log.e(TAG, getString(R.string.data_empty));
@@ -1482,32 +1396,32 @@ public class KCTBluetoothService extends Service{
                             }
                         }
                         break;
-                    case (byte)0xb3:
-                        Log.e(TAG,getString(R.string.syn_motion_status_response));
+                    case (byte) 0xb3:
+                        Log.e(TAG, getString(R.string.syn_motion_status_response));
                         break;
-                    case (byte)0xb4:
-                        Log.e(TAG,"" + objects[0] + objects[1]);
+                    case (byte) 0xb4:
+                        Log.e(TAG, "" + objects[0] + objects[1]);
                         break;
-                    case (byte)0x43:
-                        if(objects != null && objects.length > 0){
-                            if((int)objects[0] == 0){
-                                Log.e(TAG,getString(R.string.unbind_device_success));
-                            }else{
-                                Log.e(TAG,getString(R.string.unbind_device_fail));
+                    case (byte) 0x43:
+                        if (objects != null && objects.length > 0) {
+                            if ((int) objects[0] == 0) {
+                                Log.e(TAG, getString(R.string.unbind_device_success));
+                            } else {
+                                Log.e(TAG, getString(R.string.unbind_device_fail));
                             }
-                        }else{
-                            Log.e(TAG,getString(R.string.unbind_device_response));
+                        } else {
+                            Log.e(TAG, getString(R.string.unbind_device_response));
                         }
                         break;
-                    case (byte)0x45:
-                        if(objects != null && objects.length > 0){
-                            if((int)objects[0] == 0){
-                                Log.e(TAG,getString(R.string.bind_device_success));
-                            }else{
-                                Log.e(TAG,getString(R.string.bind_device_fail));
+                    case (byte) 0x45:
+                        if (objects != null && objects.length > 0) {
+                            if ((int) objects[0] == 0) {
+                                Log.e(TAG, getString(R.string.bind_device_success));
+                            } else {
+                                Log.e(TAG, getString(R.string.bind_device_fail));
                             }
-                        }else{
-                            Log.e(TAG,getString(R.string.bind_device_response));
+                        } else {
+                            Log.e(TAG, getString(R.string.bind_device_response));
                         }
                         break;
                     case (byte) 0x50:
@@ -1527,7 +1441,7 @@ public class KCTBluetoothService extends Service{
                         EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO,
                                 "BLE_COMMAND_a2d_getBatteryStatus_pack response\n\nbattery: " + battery + "\nstatus=" + batteryType));
                     }
-                        break;
+                    break;
 
                     // 自定义表盘 custom clock dial
                     case 0x1160200: // 获取当前表盘状态 回响
@@ -1683,7 +1597,7 @@ public class KCTBluetoothService extends Service{
                             mSportStartTime = null;
                         }
                     }
-                        break;
+                    break;
 
                     case 0x010CCE00: // BLE_COMMAND_a2d_renameDevice_pack response
                     {
@@ -1693,7 +1607,7 @@ public class KCTBluetoothService extends Service{
                         EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO,
                                 "BLE_COMMAND_a2d_renameDevice_pack response\n\nsuccess: " + success));
                     }
-                        break;
+                    break;
 
                     case 0x01045600: // BLE_COMMAND_a2d_bondAuth_pack response
                     {
@@ -1707,11 +1621,148 @@ public class KCTBluetoothService extends Service{
                             KCTBluetoothManager.getInstance().disConnect_a2d();
                         }
                     }
-                        break;
+                    break;
                 }
             }
         }
     };
+
+    private BroadcastReceiver mBroadcastReceiver;
+    private IConnectListener iConnectListener = new IConnectListener() {
+        @Override
+        public void onConnectState(int state) {   //
+            EventBus.getDefault().post(new MessageEvent(MessageEvent.CONNECT_STATE, state));
+            if (state == KCTBluetoothManager.STATE_CONNECT_FAIL) {
+                if (!isDFU) {
+                    SharedPreferences preferences = mContext.getSharedPreferences("bluetooth", 0);
+                    String addr = preferences.getString("address", null);
+                    boolean reconnect = preferences.getBoolean("reconnect", false);
+                    if (!TextUtils.isEmpty(addr) && reconnect) {
+                        mExecutor.cancel(mReconnectTask);
+                        mExecutor.executeDelayed(mReconnectTask, 3000);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void onConnectDevice(BluetoothDevice device) {
+            SharedPreferences preferences = mContext.getSharedPreferences("bluetooth", 0);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("address", device.getAddress());
+            editor.putString("addressName", device.getName());
+            editor.apply();
+            EventBus.getDefault().post(new MessageEvent(MessageEvent.CONNECT_DEVICE, device));
+        }
+
+        @Override
+        public void onScanDevice(BluetoothLeDevice device) {
+            if (!isDFU) {
+                SharedPreferences preferences = mContext.getSharedPreferences("bluetooth", 0);
+                String address = preferences.getString("address", "");
+                boolean reconnect = preferences.getBoolean("reconnect", false);
+                if (reconnect && device.getAddress().equals(address)) {
+                    Log.d(TAG, "reconnect address=" + address);
+                    Log.d(TAG, "device address=" + device.getAddress());
+
+                    KCTBluetoothManager.getInstance().scanDevice(false);
+                    preferences.edit()
+                            .putString("address", device.getAddress())
+                            .putString("addressName", device.getName())
+                            .putInt("deviceType", device.getDeviceType())
+                            .apply();
+                    KCTBluetoothManager.getInstance().connect(device.getDevice(), device.getDeviceType());
+                }
+            }
+        }
+
+        @Override
+        public void onCommand_d2a(byte[] bytes) {
+            Log.i(TAG, "onCommand_d2a: " + Utils.bytesToHex(bytes));
+            EventBus.getDefault().post(new MessageEvent(MessageEvent.RECEIVE_DATA, bytes));
+            if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_MTK) {
+                KCTBluetoothCommand.getInstance().d2a_MTK_command(bytes, iReceiveCallback);
+            } else {
+                KCTBluetoothCommand.getInstance().d2a_command_Parse(mContext, bytes, iReceiveCallback);
+            }
+
+        }
+    };
+
+    private void unRegisterReceiver() {
+        if (mBroadcastReceiver != null) {
+            unregisterReceiver(mBroadcastReceiver);
+            mBroadcastReceiver = null;
+        }
+    }
+
+    private void registerReceiver() {
+        if (mBroadcastReceiver == null) {
+            mBroadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    String action = intent.getAction();
+                    if (!TextUtils.isEmpty(action)) {
+                        switch (action) {
+                            case BluetoothAdapter.ACTION_STATE_CHANGED: {
+                                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+                                if (state == BluetoothAdapter.STATE_ON) {
+//                                    mExecutor.cancel(mReconnectTask);
+//                                    mExecutor.executeDelayed(mReconnectTask, 5000);
+                                    SharedPreferences preferences = mContext.getSharedPreferences("bluetooth", 0);
+                                    String addr = preferences.getString("address", null);
+                                    boolean reconnect = preferences.getBoolean("reconnect", false);
+                                    if (!TextUtils.isEmpty(addr) && reconnect) {
+                                        KCTBluetoothManager.getInstance().scanDevice(true);
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            };
+
+            registerReceiver(mBroadcastReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+        }
+    }
+
+    private void SaveLog(StringBuilder sb) {
+        try {
+            // 目前時間
+            Date date = new Date();
+            // 設定日期格式
+            SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd_HH:mm:ss");
+            // 進行轉換
+            String dateString = sdf.format(date);
+
+            String file_path = Environment
+                    .getExternalStorageDirectory()
+                    .getAbsolutePath();
+            String filename = "demo_log.txt";
+            String writeText = "Log Time " + dateString + "\n";
+
+            File file = new File(file_path, filename);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+//                        FileWriter fileWritter = new FileWriter(file); // overwrite
+            FileWriter fileWritter = new FileWriter(file, true); // append
+            BufferedWriter bufferWritter = new BufferedWriter(
+                    fileWritter);
+            bufferWritter.write(writeText + "\n");
+            bufferWritter.write(sb + "\n");
+
+            //使用缓冲区中的方法，将数据刷新到目的地文件中去。
+            bufferWritter.flush();
+            //关闭缓冲区,同时关闭了fw流对象
+            bufferWritter.close();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+    }
+
 
 
     private Date mSportStartTime;
@@ -1746,8 +1797,8 @@ public class KCTBluetoothService extends Service{
 //                KCTBluetoothManager.getInstance().sendCommand_a2d(rsp);
 //                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, BaseActivity.requestCode_GPSInterconn);
 //            } else {
-                byte[] rsp = BLEBluetoothManager.BLE_COMMAND_a2d_GPSInterconnAnswerRequire_pack(transactionId, 2); // 无定位权限
-                KCTBluetoothManager.getInstance().sendCommand_a2d(rsp);
+            byte[] rsp = BLEBluetoothManager.BLE_COMMAND_a2d_GPSInterconnAnswerRequire_pack(transactionId, 2); // 无定位权限
+            KCTBluetoothManager.getInstance().sendCommand_a2d(rsp);
 //            }
         }
     }
@@ -1760,6 +1811,7 @@ public class KCTBluetoothService extends Service{
     };
 
     private GPSInterconnLocationListener mGPSInterconnLocationListener;
+
     private class GPSInterconnLocationListener implements LocationListener {
         final int transactionId;
         final int locationInterval;
@@ -1818,13 +1870,13 @@ public class KCTBluetoothService extends Service{
     }
 
 
-
-
     private Handler mHandler = new Handler(this);
+
     private static class Handler extends android.os.Handler {
         private static final int EXEC_RUNNABLE = 0;
 
         private WeakReference<KCTBluetoothService> mS;
+
         private Handler(KCTBluetoothService s) {
             mS = new WeakReference<>(s);
         }

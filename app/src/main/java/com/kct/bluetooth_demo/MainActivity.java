@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -26,6 +27,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -119,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
+        findViewById(R.id.delete_log).setOnClickListener(this);
         findViewById(R.id.connect).setOnClickListener(this);
         findViewById(R.id.disConnect).setOnClickListener(this);
         findViewById(R.id.checkDelay).setOnClickListener(this);
@@ -173,6 +176,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.delete_log:
+                String file_path = Environment
+                        .getExternalStorageDirectory()
+                        .getAbsolutePath();
+                String filename = "demo_log.txt";
+                File file = new File(file_path, filename);
+
+                if (file.exists()) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setMessage("Delete?");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            String file_path = Environment
+                                    .getExternalStorageDirectory()
+                                    .getAbsolutePath();
+                            String filename = "demo_log.txt";
+                            File file = new File(file_path, filename);
+                            file.delete();
+                            Toast.makeText(getApplicationContext(), "Delete Log!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                        }
+                    });
+
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                } else {
+                    Toast.makeText(this, "No demo_log.txt !", Toast.LENGTH_SHORT).show();
+                }
+
+
+                break;
+
             case R.id.connect:
                 if (KCTBluetoothManager.getInstance().getConnectState() == KCTBluetoothManager.STATE_CONNECTED) {
                     Toast.makeText(this, getString(R.string.please_disconnect), Toast.LENGTH_SHORT).show();
