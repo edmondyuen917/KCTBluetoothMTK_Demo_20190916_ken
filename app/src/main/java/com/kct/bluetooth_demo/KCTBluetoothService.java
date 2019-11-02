@@ -248,7 +248,7 @@ public class KCTBluetoothService extends Service {
                             sb.append("heart_set: ").append(map.get("heart_set")).append('\n');
                             sb.append("drink_set: ").append(map.get("drink_set")).append('\n');
                             sb.append("drink_set: ").append(map.get("drink_set")).append('\n');
-                            SaveLog(sb);
+//                            SaveLog(sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                         }
                         break;
@@ -388,7 +388,7 @@ public class KCTBluetoothService extends Service {
                                     sb.append("mode: ").append(mode).append('\n');
                                     sb.append("------------------------------\n");
                                 }
-                                SaveLog(sb);
+                                SaveLog("Sleep", sb);
                                 EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                             } else {
                                 EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, "BLE_COMMAND_a2d_sendMTKBurstSleep_pack response\n\nempty"));
@@ -519,7 +519,7 @@ public class KCTBluetoothService extends Service {
                             } else {
                                 sb.append("empty");
                             }
-                            SaveLog(sb);
+//                            SaveLog(sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.DEVICE_NOTI_INFO, sb.toString()));
                         }
                         break;
@@ -635,7 +635,7 @@ public class KCTBluetoothService extends Service {
                                 sb.append("distance: ").append(distance).append('\n');
                                 sb.append("time: ").append(time).append('\n');
                             }
-                            SaveLog(sb);
+                            SaveLog("Workout", sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.DEVICE_NOTI_INFO, sb.toString()));
                         }
                         break;
@@ -651,7 +651,7 @@ public class KCTBluetoothService extends Service {
                                 sb.append("date: ").append(objects[0]).append('\n');
                                 sb.append("heart: ").append(objects[1]).append('\n');
                             }
-                            SaveLog(sb);
+                            SaveLog("Heart Rate", sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.DEVICE_NOTI_INFO, sb.toString()));
                         }
                         break;
@@ -1148,7 +1148,7 @@ public class KCTBluetoothService extends Service {
                                     sb.append("------------------------------\n");
                                 }
                             }
-                            SaveLog(sb);
+                            SaveLog("Sleep", sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                         }
                         break;
@@ -1185,7 +1185,7 @@ public class KCTBluetoothService extends Service {
 
                                 }
                             }
-                            SaveLog(sb);
+                            SaveLog("Workout", sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                         }
                         break;
@@ -1220,7 +1220,7 @@ public class KCTBluetoothService extends Service {
                                     sb.append("------------------------------\n");
                                 }
                             }
-                            SaveLog(sb);
+                            SaveLog("Heart Rate", sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                         }
                         break;
@@ -1338,7 +1338,7 @@ public class KCTBluetoothService extends Service {
                                     sb.append("------------------------------\n");
                                 }
                             }
-                            SaveLog(sb);
+                            SaveLog("Sports", sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                         }
                         break;
@@ -1727,7 +1727,7 @@ public class KCTBluetoothService extends Service {
         }
     }
 
-    private void SaveLog(StringBuilder sb) {
+    private void SaveLog(String type, StringBuilder sb) {
         try {
             // 目前時間
             Date date = new Date();
@@ -1740,7 +1740,7 @@ public class KCTBluetoothService extends Service {
                     .getExternalStorageDirectory()
                     .getAbsolutePath();
             String filename = "demo_log.txt";
-            String writeText = "Log Time " + dateString + "\n";
+            String writeText = type + " Log Time " + dateString + "\n";
 
             File file = new File(file_path, filename);
             if (!file.exists()) {

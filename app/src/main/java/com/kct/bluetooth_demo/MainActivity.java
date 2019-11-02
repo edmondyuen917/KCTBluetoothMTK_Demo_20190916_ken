@@ -1070,13 +1070,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     @Override
                     public void onComplete() {
+                        Log.d(TAG, "workout  ==============onComplete");
                         rxSyncHeartRate();
                     }
                 });
     }
 
     private void rxSyncHeartRate() {
-        Observable.intervalRange(0, 7, 500, 1000, TimeUnit.MILLISECONDS)
+        Observable.intervalRange(0, 7, 1000, 1000, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(new Observer<Long>() {
                     @Override
@@ -1106,7 +1107,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void rxSyncSleep() {
-        Observable.intervalRange(0, 7, 500, 1000, TimeUnit.MILLISECONDS)
+        Observable.intervalRange(0, 7, 1000, 1000, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(new Observer<Long>() {
                     @Override
@@ -1136,7 +1137,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void rxSyncSports() {
-        Observable.intervalRange(0, 1, 500, 5000, TimeUnit.MILLISECONDS)
+        Observable.intervalRange(0, 7, 1000, 1000, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(new Observer<Long>() {
                     @Override
@@ -1159,6 +1160,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     @Override
                     public void onComplete() {
+
                         Log.d(TAG, "sports ==============onComplete");
                     }
                 });
