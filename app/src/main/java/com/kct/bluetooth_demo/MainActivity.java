@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.delete_log).setOnClickListener(this);
         findViewById(R.id.connect).setOnClickListener(this);
         findViewById(R.id.disConnect).setOnClickListener(this);
-        findViewById(R.id.checkDelay).setOnClickListener(this);
+        findViewById(R.id.saveLog).setOnClickListener(this);
         findViewById(R.id.syn_time).setOnClickListener(this);
         findViewById(R.id.syn_mtk_birthday).setOnClickListener(this);
         findViewById(R.id.syn_firmware).setOnClickListener(this);
@@ -231,7 +231,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 KCTBluetoothManager.getInstance().disConnect_a2d();
             }
             break;
-            case R.id.checkDelay: {
+            case R.id.saveLog: {
+                Toast.makeText(this, "Log Start!", Toast.LENGTH_SHORT).show();
                 rxSyncWorkouts();
             }
             case R.id.syn_time:
@@ -1137,7 +1138,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void rxSyncSports() {
-        Observable.intervalRange(0, 7, 1000, 1000, TimeUnit.MILLISECONDS)
+        Observable.intervalRange(0, 1, 1000, 1000, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(new Observer<Long>() {
                     @Override

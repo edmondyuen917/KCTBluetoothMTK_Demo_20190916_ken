@@ -34,10 +34,10 @@
                 android:text="@string/disconnect" />
 
             <Button
-                android:id="@+id/checkDelay"
+                android:id="@+id/saveLog"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Check Delay" />
+                android:text="Save Log" />
 
             <Button
                 android:id="@+id/syn_time"

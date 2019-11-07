@@ -187,6 +187,7 @@ public class KCTBluetoothService extends Service {
             removeMessages(RUN_RUNNABLE, task);
         }
     }
+
     private IReceiveListener iReceiveCallback = new IReceiveListener() {
 
         @Override
@@ -248,7 +249,6 @@ public class KCTBluetoothService extends Service {
                             sb.append("heart_set: ").append(map.get("heart_set")).append('\n');
                             sb.append("drink_set: ").append(map.get("drink_set")).append('\n');
                             sb.append("drink_set: ").append(map.get("drink_set")).append('\n');
-//                            SaveLog(sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                         }
                         break;
@@ -388,7 +388,6 @@ public class KCTBluetoothService extends Service {
                                     sb.append("mode: ").append(mode).append('\n');
                                     sb.append("------------------------------\n");
                                 }
-                                SaveLog("Sleep", sb);
                                 EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                             } else {
                                 EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, "BLE_COMMAND_a2d_sendMTKBurstSleep_pack response\n\nempty"));
@@ -519,7 +518,6 @@ public class KCTBluetoothService extends Service {
                             } else {
                                 sb.append("empty");
                             }
-//                            SaveLog(sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.DEVICE_NOTI_INFO, sb.toString()));
                         }
                         break;
@@ -635,7 +633,6 @@ public class KCTBluetoothService extends Service {
                                 sb.append("distance: ").append(distance).append('\n');
                                 sb.append("time: ").append(time).append('\n');
                             }
-                            SaveLog("Workout", sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.DEVICE_NOTI_INFO, sb.toString()));
                         }
                         break;
@@ -651,7 +648,6 @@ public class KCTBluetoothService extends Service {
                                 sb.append("date: ").append(objects[0]).append('\n');
                                 sb.append("heart: ").append(objects[1]).append('\n');
                             }
-                            SaveLog("Heart Rate", sb);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.DEVICE_NOTI_INFO, sb.toString()));
                         }
                         break;
@@ -1122,9 +1118,11 @@ public class KCTBluetoothService extends Service {
                         if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
                             // BLE_COMMAND_a2d_synData_pack(type=1) response
                             StringBuilder sb = new StringBuilder("BLE_COMMAND_a2d_synData_pack response\n\n");
+                            StringBuilder sb_new = new StringBuilder();
                             if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
                                 Log.e(TAG, getString(R.string.data_empty));
                                 sb.append("the data is empty");
+                                sb_new.append("the data is empty");
                             } else {
                                 int sleepYear = (int) objects[0];
                                 int sleepMonth = (int) objects[1];
@@ -1133,6 +1131,13 @@ public class KCTBluetoothService extends Service {
                                 sb.append("month: ").append(sleepMonth).append('\n');
                                 sb.append("day: ").append(sleepDay).append('\n');
                                 sb.append("------------------------------\n");
+
+                                sb_new.append(sleepYear).append("/")
+                                        .append(sleepMonth).append("/")
+                                        .append(sleepDay).append(" ")
+                                        .append(sleepDay).append('\n');
+                                sb_new.append("------------------------------\n");
+
                                 ArrayList<HashMap<String, Object>> sleepList = (ArrayList<HashMap<String, Object>>) objects[3];
                                 for (int j = 0; j < sleepList.size(); j++) {
                                     HashMap<String, Object> sleepMap = sleepList.get(j);
@@ -1146,23 +1151,33 @@ public class KCTBluetoothService extends Service {
                                     sb.append("sleepHour: ").append(sleepHour).append('\n');
                                     sb.append("sleepMinute: ").append(sleepMinute).append('\n');
                                     sb.append("------------------------------\n");
+
+                                    sb_new.append("Mode:").append(sleepMode).append(" ")
+                                            .append("sleepHour: ").append(sleepHour).append(' ')
+                                            .append("sleepMinute: ").append(sleepMinute).append(' ');
                                 }
                             }
-                            SaveLog("Sleep", sb);
+                            SaveLog("Sleep", sb_new);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                         }
                         break;
                     case (byte) 0xA3:  //history_run
                         if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
                             // BLE_COMMAND_a2d_synData_pack(type=3) response
+
                             StringBuilder sb = new StringBuilder("BLE_COMMAND_a2d_synData_pack response\n\n");
+                            StringBuilder sb_new = new StringBuilder();
+
                             if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
                                 Log.e(TAG, getString(R.string.data_empty));
                                 sb.append("the data is empty");
+                                sb_new.append("the data is empty");
                             } else {
                                 ArrayList<HashMap<String, Object>> runList = (ArrayList<HashMap<String, Object>>) objects[0];
                                 sb.append("------------------------------\n");
+                                sb_new.append("------------------------------\n");
                                 for (int j = 0; j < runList.size(); j++) {
+
                                     HashMap<String, Object> runMap = runList.get(j);
                                     int runYear = (int) runMap.get("year");
                                     int runMonth = (int) runMap.get("month");
@@ -1183,9 +1198,16 @@ public class KCTBluetoothService extends Service {
                                     sb.append("distance: ").append(distance).append('\n');
                                     sb.append("------------------------------\n");
 
+                                    sb_new.append(runYear).append("/")
+                                            .append(runMonth).append("/")
+                                            .append(runDay).append(" ")
+                                            .append(runHour).append(":00 ")
+                                            .append("Step:").append(runStep).append(" ")
+                                            .append("Calorie:").append(calorie).append(" ")
+                                            .append("Distance:").append(distance).append('\n');
                                 }
                             }
-                            SaveLog("Workout", sb);
+                            SaveLog("Activity Data", sb_new);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                         }
                         break;
@@ -1193,12 +1215,16 @@ public class KCTBluetoothService extends Service {
                         if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
                             // BLE_COMMAND_a2d_synData_pack(type=2) response
                             StringBuilder sb = new StringBuilder("BLE_COMMAND_a2d_synData_pack response\n\n");
+                            StringBuilder sb_new = new StringBuilder();
+
                             if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
                                 Log.e(TAG, getString(R.string.data_empty));
                                 sb.append("the data is empty");
+                                sb_new.append("the data is empty");
                             } else {
                                 ArrayList<HashMap<String, Object>> heartList = (ArrayList<HashMap<String, Object>>) objects[0];
                                 sb.append("------------------------------\n");
+                                sb_new.append("------------------------------\n");
                                 for (int j = 0; j < heartList.size(); j++) {
                                     HashMap<String, Object> runMap = heartList.get(j);
                                     int heartYear = (int) runMap.get("year");
@@ -1218,9 +1244,18 @@ public class KCTBluetoothService extends Service {
                                     sb.append("second: ").append(heartSecond).append('\n');
                                     sb.append("heart: ").append(heart).append('\n');
                                     sb.append("------------------------------\n");
+
+                                    sb_new.append(heartYear).append("/")
+                                            .append(heartMonth).append("/")
+                                            .append(heartDay).append(" ")
+                                            .append(heartHour).append(":")
+                                            .append(heartMinute).append(":")
+                                            .append(heartSecond).append(" ")
+                                            .append("HR:").append(heart).append("\n ");
+//                                    sb_new.append("------------------------------\n");
                                 }
                             }
-                            SaveLog("Heart Rate", sb);
+                            SaveLog("Heart Rate", sb_new);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
                         }
                         break;
@@ -1228,12 +1263,15 @@ public class KCTBluetoothService extends Service {
                         if (KCTBluetoothManager.getInstance().getDeviceType() == KCTBluetoothManager.DEVICE_BLE) {
                             // BLE_COMMAND_a2d_synData_pack(type=4) response
                             StringBuilder sb = new StringBuilder("BLE_COMMAND_a2d_synData_pack response\n\n");
+                            StringBuilder sb_new = new StringBuilder();
                             if (objects[0] instanceof String && objects[0].equals("")) {   //判断数据是否为空
                                 Log.e(TAG, getString(R.string.data_empty));
                                 sb.append("the data is empty");
+                                sb_new.append("the data is empty");
                             } else if (objects[0] instanceof ArrayList) {
                                 ArrayList<HashMap<String, Object>> sportList = (ArrayList<HashMap<String, Object>>) objects[0];
                                 sb.append("------------------------------\n");
+                                sb_new.append("------------------------------\n");
                                 for (int j = 0; j < sportList.size(); j++) {
                                     HashMap<String, Object> sportMap = sportList.get(j);
                                     int sportSportYear = (int) sportMap.get("year");
@@ -1263,19 +1301,40 @@ public class KCTBluetoothService extends Service {
                                     sb.append("day: ").append(sportDay).append('\n');
                                     sb.append("startHour: ").append(sportStartHour).append('\n');
                                     sb.append("startMin: ").append(sportStartMin).append('\n');
-                                    sb.append("endMin: ").append(sportEndMin).append('\n');
+//                                    sb.append("endHour: ").append(sportEndHour).append('\n');
+//                                    sb.append("endMin: ").append(sportEndMin).append('\n');
+
+                                    sb_new.append(sportSportYear).append("/")
+                                            .append(sportMonth).append("/")
+                                            .append(sportDay).append(" ")
+                                            .append("Start:").append(sportStartHour).append(":")
+                                            .append(sportStartMin).append(" ");
+
                                     if (sportMap.containsKey("startSec")) {
                                         sb.append("startSec: ").append(sportStartSec).append('\n');
+//                                        sb_new.append(sportStartSec);
                                     }
+
                                     sb.append("endHour: ").append(sportEndHour).append('\n');
                                     sb.append("endMin: ").append(sportEndMin).append('\n');
+                                    sb_new.append("End:").append(sportEndHour).append(":")
+                                            .append(sportEndMin).append(" ");
+
                                     if (sportMap.containsKey("endSec")) {
                                         sb.append("endSec: ").append(sportEndSec).append('\n');
+//                                        sb_new.append(sportEndSec);
                                     }
+
                                     sb.append("type: ").append(sportType).append('\n');
                                     sb.append("step: ").append(sportStep).append('\n');
                                     sb.append("calorie: ").append(sportCalorie).append('\n');
                                     sb.append("------------------------------\n");
+
+                                    sb_new.append("type: ").append(sportType).append(' ')
+                                            .append("step: ").append(sportStep).append(' ')
+                                            .append("calorie: ").append(sportCalorie).append('\n');
+//                                    .append("------------------------------\n");
+
                                 }
                             } else if (objects[0] instanceof HashMap) {
                                 HashMap<String, Object> gpsMap = (HashMap<String, Object>) objects[0];
@@ -1338,8 +1397,9 @@ public class KCTBluetoothService extends Service {
                                     sb.append("------------------------------\n");
                                 }
                             }
-                            SaveLog("Sports", sb);
+                            SaveLog("Sports", sb_new);
                             EventBus.getDefault().post(new MessageEvent(MessageEvent.RSP_INFO, sb.toString()));
+
                         }
                         break;
                     case 0x10ABA00:   //history_sport
@@ -1740,7 +1800,7 @@ public class KCTBluetoothService extends Service {
                     .getExternalStorageDirectory()
                     .getAbsolutePath();
             String filename = "demo_log.txt";
-            String writeText = type + " Log Time " + dateString + "\n";
+            String writeText = "*****************************************\n" + type + " Log Time " + dateString + "\n";
 
             File file = new File(file_path, filename);
             if (!file.exists()) {
@@ -1762,7 +1822,6 @@ public class KCTBluetoothService extends Service {
         }
 
     }
-
 
 
     private Date mSportStartTime;
