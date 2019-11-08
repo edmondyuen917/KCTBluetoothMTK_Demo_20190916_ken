@@ -43,6 +43,8 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
+    final int delayTime = 2000;             //<ms>
+
     private Button button;
     private TextView textView_send, textView_receive, textView_device, textView_connectState;
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -1046,7 +1048,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void rxSyncWorkouts() {
-        Observable.intervalRange(0, 7, 500, 1000, TimeUnit.MILLISECONDS)
+        Observable.intervalRange(0, 7, delayTime, delayTime, TimeUnit.MILLISECONDS)
 //                .repeatWhen(objectObservable -> objectObservable.delay(2,TimeUnit.MINUTES))
 //                .repeatUntil(() -> KCTBluetoothManager.getInstance().getConnectState() == KCTBluetoothManager.STATE_CONNECTED)
                 .subscribeOn(Schedulers.newThread())
@@ -1078,7 +1080,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void rxSyncHeartRate() {
-        Observable.intervalRange(0, 7, 1000, 1000, TimeUnit.MILLISECONDS)
+        Observable.intervalRange(0, 7, delayTime, delayTime, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(new Observer<Long>() {
                     @Override
@@ -1108,7 +1110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void rxSyncSleep() {
-        Observable.intervalRange(0, 7, 1000, 1000, TimeUnit.MILLISECONDS)
+        Observable.intervalRange(0, 7, delayTime, delayTime, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(new Observer<Long>() {
                     @Override
@@ -1138,7 +1140,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void rxSyncSports() {
-        Observable.intervalRange(0, 1, 1000, 1000, TimeUnit.MILLISECONDS)
+        Observable.intervalRange(0, 1, delayTime, delayTime, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(new Observer<Long>() {
                     @Override
